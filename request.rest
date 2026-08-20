@@ -1,0 +1,22 @@
+GET http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "harryyung8@gmail.com",
+  "password": "Test1234$",
+}
+
+
+# POST http://localhost:3000/api/announcements
+# Content-Type: application/json
+
+# {
+#   "title": "Welcome to OurTribe",
+#   "description": "Welcome to the OurTribe community. We are excited to have you here."
+# }
+
+
+
+# GET http://localhost:3000//api/admin/users
+
+
