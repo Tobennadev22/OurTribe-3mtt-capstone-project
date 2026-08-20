@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "postinstall": "prisma generate",
     "devStart": "npx nodemon --exec node src/app/api/server.js"
   },
   "dependencies": {
