@@ -109,14 +109,18 @@ export default function Home() {
 
           <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
             <Button size="lg" className="w-48 bg-green-700">
-              <a href="http://localhost:3000/register">Register</a>
+              <a href="https://our-tribe-3mtt-capstone-project.vercel.app/register">
+                Register
+              </a>
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="w-48 border-border text-foreground hover:bg-secondary"
             >
-              <a href="http://localhost:3000/login">Log in</a>
+              <a href="https://our-tribe-3mtt-capstone-project.vercel.app/login">
+                Log in
+              </a>
             </Button>
           </div>
         </div>
