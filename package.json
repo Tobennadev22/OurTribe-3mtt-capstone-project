@@ -2,19 +2,11 @@
   "name": "ourtribe",
   "version": "0.1.0",
   "private": true,
-  "allowScripts": {
-    "@prisma/engines": true,
-    "bcrypt": true,
-    "prisma": true,
-    "sharp": true,
-    "unrs-resolver": true
-  },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate",
     "devStart": "npx nodemon --exec node src/app/api/server.js"
   },
   "dependencies": {

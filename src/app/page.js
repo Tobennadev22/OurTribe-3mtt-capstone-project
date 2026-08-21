@@ -119,10 +119,6 @@ export default function Home() {
               <a href="http://localhost:3000/login">Log in</a>
             </Button>
           </div>
-
-          <p className="mt-6 text-xs text-muted-foreground">
-            Free to start · No credit card required
-          </p>
         </div>
       </div>
 
