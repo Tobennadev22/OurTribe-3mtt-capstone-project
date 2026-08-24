@@ -164,43 +164,31 @@ export default function UserDashboard() {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid h-auto w-full max-w-4xl grid-cols-2 gap-1 sm:grid-cols-5">
-            <TabsTrigger
-              value="dashboard"
-              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
-            >
+          <TabsList className="flex h-auto w-full max-w-4xl gap-1 overflow-x-auto sm:grid sm:grid-cols-5 sm:overflow-visible">
+            <TabsTrigger value="dashboard" className="h-auto flex-none py-1.5">
               <User className="mr-2 h-4 w-4" />
               Dashboard
             </TabsTrigger>
 
-            <TabsTrigger
-              value="events"
-              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
-            >
+            <TabsTrigger value="events" className="h-auto flex-none py-1.5">
               <CalendarDays className="mr-2 h-4 w-4" />
               Events
             </TabsTrigger>
 
-            <TabsTrigger
-              value="archived"
-              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
-            >
+            <TabsTrigger value="archived" className="h-auto flex-none py-1.5">
               <CalendarCheck className="mr-2 h-4 w-4" />
               Archived Events
             </TabsTrigger>
 
             <TabsTrigger
               value="announcements"
-              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
+              className="h-auto flex-none py-1.5"
             >
               <Megaphone className="mr-2 h-4 w-4" />
               Announcements
             </TabsTrigger>
 
-            <TabsTrigger
-              value="settings"
-              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
-            >
+            <TabsTrigger value="settings" className="h-auto flex-none py-1.5">
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </TabsTrigger>
