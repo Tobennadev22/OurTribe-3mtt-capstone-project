@@ -164,7 +164,7 @@ export default function UserDashboard() {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="flex h-auto w-full max-w-4xl gap-1 overflow-x-auto sm:grid sm:grid-cols-5 sm:overflow-visible">
+          <TabsList className="flex  w-full max-w-4xl justify-start  gap-1 overflow-x-auto sm:grid sm:grid-cols-5 sm:p-2 sm:overflow-visible">
             <TabsTrigger value="dashboard" className="h-auto flex-none py-1.5">
               <User className="mr-2 h-4 w-4" />
               Dashboard
