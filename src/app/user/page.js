@@ -164,28 +164,43 @@ export default function UserDashboard() {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="flex w-full max-w-4xl gap-1 overflow-x-auto sm:grid sm:grid-cols-5 sm:overflow-visible">
-            <TabsTrigger value="dashboard" className="shrink-0">
+          <TabsList className="grid h-auto w-full max-w-4xl grid-cols-2 gap-1 sm:grid-cols-5">
+            <TabsTrigger
+              value="dashboard"
+              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
+            >
               <User className="mr-2 h-4 w-4" />
               Dashboard
             </TabsTrigger>
 
-            <TabsTrigger value="events" className="shrink-0">
+            <TabsTrigger
+              value="events"
+              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
+            >
               <CalendarDays className="mr-2 h-4 w-4" />
               Events
             </TabsTrigger>
 
-            <TabsTrigger value="archived" className="shrink-0">
+            <TabsTrigger
+              value="archived"
+              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
+            >
               <CalendarCheck className="mr-2 h-4 w-4" />
               Archived Events
             </TabsTrigger>
 
-            <TabsTrigger value="announcements" className="shrink-0">
+            <TabsTrigger
+              value="announcements"
+              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
+            >
               <Megaphone className="mr-2 h-4 w-4" />
               Announcements
             </TabsTrigger>
 
-            <TabsTrigger value="settings" className="shrink-0">
+            <TabsTrigger
+              value="settings"
+              className="h-auto flex-none whitespace-normal py-1.5 sm:whitespace-nowrap"
+            >
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </TabsTrigger>
