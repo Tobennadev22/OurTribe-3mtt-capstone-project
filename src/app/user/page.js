@@ -164,28 +164,28 @@ export default function UserDashboard() {
         </div>
 
         <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full max-w-4xl grid-cols-5">
-            <TabsTrigger value="dashboard">
+          <TabsList className="flex w-full max-w-4xl gap-1 overflow-x-auto sm:grid sm:grid-cols-5 sm:overflow-visible">
+            <TabsTrigger value="dashboard" className="shrink-0">
               <User className="mr-2 h-4 w-4" />
               Dashboard
             </TabsTrigger>
 
-            <TabsTrigger value="events">
+            <TabsTrigger value="events" className="shrink-0">
               <CalendarDays className="mr-2 h-4 w-4" />
               Events
             </TabsTrigger>
 
-            <TabsTrigger value="archived">
+            <TabsTrigger value="archived" className="shrink-0">
               <CalendarCheck className="mr-2 h-4 w-4" />
               Archived Events
             </TabsTrigger>
 
-            <TabsTrigger value="announcements">
+            <TabsTrigger value="announcements" className="shrink-0">
               <Megaphone className="mr-2 h-4 w-4" />
               Announcements
             </TabsTrigger>
 
-            <TabsTrigger value="settings">
+            <TabsTrigger value="settings" className="shrink-0">
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </TabsTrigger>
