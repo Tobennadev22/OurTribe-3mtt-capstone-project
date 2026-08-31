@@ -27,6 +27,10 @@ model User {
   role         Role       @default(USER)
   status       UserStatus @default(ACTIVE)
 
+  emailVerified           Boolean   @default(false)
+  verificationToken       String?   @unique
+  verificationTokenExpiry DateTime?
+
   announcements Announcement[]
   events        Event[]
 

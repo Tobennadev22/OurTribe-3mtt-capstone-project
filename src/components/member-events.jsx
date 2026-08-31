@@ -260,6 +260,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 export default function MemberEvents() {
   const [eventList, setEventList] = useState([]);
 
@@ -272,6 +283,9 @@ export default function MemberEvents() {
   const [eventError, setEventError] = useState("");
 
   const [archivingId, setArchivingId] = useState(null);
+
+  const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
+  const [eventToArchive, setEventToArchive] = useState(null);
 
   // ========================================
   // FETCH EVENTS
@@ -355,54 +369,18 @@ export default function MemberEvents() {
   // ARCHIVE EVENT
   // ========================================
 
-  // async function handleArchive(event) {
-  //   try {
-  //     setArchivingId(event.id);
-  //     setEventError("");
+  function handleArchiveClick(event) {
+    setEventToArchive(event);
+    setArchiveConfirmOpen(true);
+  }
 
-  //     const response = await fetch(`/api/events/${event.id}/archive`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
+  async function confirmArchive() {
+    if (!eventToArchive) {
+      return;
+    }
 
-  //     const text = await response.text();
+    const event = eventToArchive;
 
-  //     let data;
-
-  //     try {
-  //       data = text ? JSON.parse(text) : {};
-  //     } catch {
-  //       throw new Error("Server returned an invalid response.");
-  //     }
-
-  //     if (!response.ok) {
-  //       throw new Error(data.message || "Failed to archive event");
-  //     }
-
-  //     // Update only this user's UI
-  //     setEventList((previous) =>
-  //       previous.map((item) =>
-  //         item.id === event.id
-  //           ? {
-  //               ...item,
-  //               archived: true,
-  //             }
-  //           : item,
-  //       ),
-  //     );
-  //   } catch (error) {
-  //     console.error("ARCHIVE EVENT ERROR:", error);
-
-  //     setEventError(error.message || "Failed to archive event");
-  //   } finally {
-  //     setArchivingId(null);
-  //   }
-  // }
-
-  // MemberEvents.jsx — handleArchive, updated
-  async function handleArchive(event) {
     try {
       setArchivingId(event.id);
       setEventError("");
@@ -429,6 +407,9 @@ export default function MemberEvents() {
       setEventList((previous) =>
         previous.filter((item) => item.id !== event.id),
       );
+
+      setArchiveConfirmOpen(false);
+      setEventToArchive(null);
     } catch (error) {
       console.error("ARCHIVE EVENT ERROR:", error);
       setEventError(error.message || "Failed to archive event");
@@ -585,7 +566,7 @@ export default function MemberEvents() {
                     {!event.archived && (
                       <Button
                         variant="outline"
-                        onClick={() => handleArchive(event)}
+                        onClick={() => handleArchiveClick(event)}
                         disabled={archivingId === event.id}
                       >
                         <Archive className="mr-2 h-4 w-4" />
@@ -709,6 +690,43 @@ export default function MemberEvents() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* ======================================
+          ARCHIVE CONFIRMATION
+      ======================================= */}
+
+      <AlertDialog
+        open={archiveConfirmOpen}
+        onOpenChange={setArchiveConfirmOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Archive event?</AlertDialogTitle>
+
+            <AlertDialogDescription>
+              Are you sure you want to archive{" "}
+              <span className="font-medium text-foreground">
+                {eventToArchive?.title}
+              </span>
+              ? You can still view it from Archived Events afterwards.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={archivingId === eventToArchive?.id}>
+              Cancel
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              type="button"
+              disabled={archivingId === eventToArchive?.id}
+              onClick={confirmArchive}
+            >
+              {archivingId === eventToArchive?.id ? "Archiving..." : "Archive"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

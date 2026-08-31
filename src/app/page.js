@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 // The tribe circle: members positioned evenly around a ring — the page's
@@ -109,18 +110,14 @@ export default function Home() {
 
           <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
             <Button size="lg" className="w-48 bg-green-700">
-              <a href="https://our-tribe-3mtt-capstone-project.vercel.app/register">
-                Register
-              </a>
+              <Link href="/register">Register</Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="w-48 border-border text-foreground hover:bg-secondary"
             >
-              <a href="https://our-tribe-3mtt-capstone-project.vercel.app/login">
-                Log in
-              </a>
+              <Link href="/login">Log in</Link>
             </Button>
           </div>
         </div>

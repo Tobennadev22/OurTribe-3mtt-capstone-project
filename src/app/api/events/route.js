@@ -18,6 +18,14 @@ export async function GET() {
     }
 
     const events = await prisma.event.findMany({
+      where: {
+        archives: {
+          none: {
+            userId: session.user.id,
+          },
+        },
+      },
+
       orderBy: {
         eventDate: "asc",
       },

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   Card,
@@ -20,20 +20,48 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-function Login() {
+const VERIFY_ERROR_MESSAGES = {
+  "missing-token": "That verification link is missing its token.",
+  "invalid-token": "That verification link is invalid or has already been used.",
+  "expired-token":
+    "That verification link has expired. Please register again or request a new link.",
+};
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [showPassword, setShowPassword] = useState(false);
+
+  const verified = searchParams.get("verified");
+
+  const [error, setError] = useState(() => {
+    if (verified !== "error") {
+      return "";
+    }
+
+    const reason = searchParams.get("reason");
+
+    return (
+      VERIFY_ERROR_MESSAGES[reason] ||
+      "We couldn't verify your email. Please try again."
+    );
+  });
+
+  const [notice, setNotice] = useState(() =>
+    verified === "success"
+      ? "Your email has been verified. You can now log in."
+      : "",
+  );
 
   async function handleLogin(event) {
     event.preventDefault();
 
     setError("");
+    setNotice("");
     setLoading(true);
 
     const result = await signIn("credentials", {
@@ -43,7 +71,11 @@ function Login() {
     });
 
     if (result?.error) {
-      setError("Invalid email or password");
+      setError(
+        result.error === "CredentialsSignin"
+          ? "Invalid email or password"
+          : result.error,
+      );
       setLoading(false);
       return;
     }
@@ -134,6 +166,9 @@ function Login() {
                   </div>
                 </div>
 
+                {/* Notice */}
+                {notice && <p className="text-sm text-green-600">{notice}</p>}
+
                 {/* Error */}
                 {error && <p className="text-sm text-red-500">{error}</p>}
 
@@ -151,6 +186,14 @@ function Login() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function Login() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
 

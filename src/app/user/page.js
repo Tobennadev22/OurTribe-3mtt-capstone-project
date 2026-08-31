@@ -24,6 +24,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
@@ -38,6 +49,18 @@ export default function UserDashboard() {
 
   const [error, setError] = useState("");
   const [eventError, setEventError] = useState("");
+
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+
+  function handleTabChange(value) {
+    if (value === "logout") {
+      setLogoutConfirmOpen(true);
+      return;
+    }
+
+    setActiveTab(value);
+  }
 
   // =======================================
   // FETCH EVENTS
@@ -140,15 +163,6 @@ export default function UserDashboard() {
               <p className="text-xs text-muted-foreground">Member</p>
             </div>
           </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
         </div>
       </header>
 
@@ -163,34 +177,58 @@ export default function UserDashboard() {
           </p>
         </div>
 
-        <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="flex  w-full max-w-4xl justify-start  gap-1 overflow-x-auto sm:grid sm:grid-cols-5 sm:p-2 sm:overflow-visible">
-            <TabsTrigger value="dashboard" className="h-auto flex-none py-1.5">
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <TabsList className="flex w-full justify-start gap-8 overflow-x-auto">
+            <TabsTrigger
+              value="dashboard"
+              className="h-auto flex-none py-1.5 sm:h-[calc(100%-1px)] sm:py-0.5"
+            >
               <User className="mr-2 h-4 w-4" />
               Dashboard
             </TabsTrigger>
 
-            <TabsTrigger value="events" className="h-auto flex-none py-1.5">
+            <TabsTrigger
+              value="events"
+              className="h-auto flex-none py-1.5 sm:h-[calc(100%-1px)] sm:py-0.5"
+            >
               <CalendarDays className="mr-2 h-4 w-4" />
               Events
             </TabsTrigger>
 
-            <TabsTrigger value="archived" className="h-auto flex-none py-1.5">
+            <TabsTrigger
+              value="archived"
+              className="h-auto flex-none py-1.5 sm:h-[calc(100%-1px)] sm:py-0.5"
+            >
               <CalendarCheck className="mr-2 h-4 w-4" />
               Archived Events
             </TabsTrigger>
 
             <TabsTrigger
               value="announcements"
-              className="h-auto flex-none py-1.5"
+              className="h-auto flex-none py-1.5 sm:h-[calc(100%-1px)] sm:py-0.5"
             >
               <Megaphone className="mr-2 h-4 w-4" />
               Announcements
             </TabsTrigger>
 
-            <TabsTrigger value="settings" className="h-auto flex-none py-1.5">
+            <TabsTrigger
+              value="settings"
+              className="h-auto flex-none py-1.5 sm:h-[calc(100%-1px)] sm:py-0.5"
+            >
               <Settings className="mr-2 h-4 w-4" />
               Settings
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="logout"
+              className="h-auto flex-none py-1.5 text-red-600 hover:text-red-600 sm:h-[calc(100%-1px)] sm:py-0.5"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
             </TabsTrigger>
           </TabsList>
 
@@ -198,7 +236,7 @@ export default function UserDashboard() {
             <MemberEvents />
           </TabsContent>
 
-          <TabsContent value="archived">
+          <TabsContent value="archived" className="mt-6">
             <ArchivedEvents />
           </TabsContent>
 
@@ -437,6 +475,33 @@ export default function UserDashboard() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* ========================================
+          LOGOUT CONFIRMATION
+      ======================================== */}
+
+      <AlertDialog open={logoutConfirmOpen} onOpenChange={setLogoutConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Log out?</AlertDialogTitle>
+
+            <AlertDialogDescription>
+              Are you sure you want to log out of your account?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+            <AlertDialogAction
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Logout
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -498,6 +563,8 @@ function SettingsTab() {
 ======================================== */
 
 function ProfileSettings() {
+  const { data: session } = useSession();
+
   return (
     <Card>
       <CardHeader>
@@ -514,8 +581,11 @@ function ProfileSettings() {
             <label className="text-sm font-medium">First Name</label>
 
             <input
-              className="h-10 rounded-md border bg-background px-3 text-sm"
+              className="h-10 rounded-md border bg-muted px-3 text-sm"
               placeholder="First name"
+              value={session?.user?.firstName || ""}
+              readOnly
+              disabled
             />
           </div>
 
@@ -523,8 +593,11 @@ function ProfileSettings() {
             <label className="text-sm font-medium">Last Name</label>
 
             <input
-              className="h-10 rounded-md border bg-background px-3 text-sm"
+              className="h-10 rounded-md border bg-muted px-3 text-sm"
               placeholder="Last name"
+              value={session?.user?.lastName || ""}
+              readOnly
+              disabled
             />
           </div>
 
@@ -543,6 +616,8 @@ function ProfileSettings() {
             <input
               className="h-10 rounded-md border bg-muted px-3 text-sm"
               placeholder="Email"
+              value={session?.user?.email || ""}
+              readOnly
               disabled
             />
           </div>
@@ -559,6 +634,66 @@ function ProfileSettings() {
 ======================================== */
 
 function PasswordSettings() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    setError("");
+    setSuccess("");
+
+    if (newPassword !== confirmPassword) {
+      setError("New password and confirm password do not match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError("New password must be at least 8 characters");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/user/change-password", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          confirmPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update password");
+      }
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
+      setSuccess("Password updated successfully.");
+    } catch (error) {
+      console.error("CHANGE PASSWORD ERROR:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -570,7 +705,7 @@ function PasswordSettings() {
       </CardHeader>
 
       <CardContent>
-        <div className="max-w-md space-y-5">
+        <form onSubmit={handleSubmit} className="max-w-md space-y-5">
           <div className="grid gap-2">
             <label className="text-sm font-medium">Current Password</label>
 
@@ -578,6 +713,9 @@ function PasswordSettings() {
               type="password"
               className="h-10 rounded-md border bg-background px-3 text-sm"
               placeholder="Current password"
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              required
             />
           </div>
 
@@ -588,6 +726,9 @@ function PasswordSettings() {
               type="password"
               className="h-10 rounded-md border bg-background px-3 text-sm"
               placeholder="New password"
+              value={newPassword}
+              onChange={(event) => setNewPassword(event.target.value)}
+              required
             />
           </div>
 
@@ -598,11 +739,20 @@ function PasswordSettings() {
               type="password"
               className="h-10 rounded-md border bg-background px-3 text-sm"
               placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
             />
           </div>
 
-          <Button>Update Password</Button>
-        </div>
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          {success && <p className="text-sm text-green-600">{success}</p>}
+
+          <Button type="submit" disabled={loading}>
+            {loading ? "Updating..." : "Update Password"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );

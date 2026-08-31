@@ -44,9 +44,16 @@ export const authOptions = {
           return null;
         }
 
+        if (!user.emailVerified) {
+          throw new Error(
+            "Please verify your email before logging in. Check your inbox for the verification link.",
+          );
+        }
+
         return {
           id: user.id,
-          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email,
           role: user.role,
         };

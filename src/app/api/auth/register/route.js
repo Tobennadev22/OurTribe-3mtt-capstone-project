@@ -1,5 +1,8 @@
+import crypto from "crypto";
+
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/prisma";
+import { sendVerificationEmail } from "@/lib/email";
 
 export async function POST(request) {
   try {
@@ -47,6 +50,10 @@ export async function POST(request) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Verification token, valid for 24 hours
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
     // Create member
     const user = await prisma.user.create({
       data: {
@@ -58,12 +65,23 @@ export async function POST(request) {
 
         // Do NOT allow registration to choose ADMIN
         role: "USER",
+
+        emailVerified: false,
+        verificationToken,
+        verificationTokenExpiry,
       },
     });
 
+    try {
+      await sendVerificationEmail(user.email, verificationToken);
+    } catch (emailError) {
+      console.error("SEND VERIFICATION EMAIL ERROR:", emailError);
+    }
+
     return Response.json(
       {
-        message: "Registration successful",
+        message:
+          "Registration successful. Check your email to verify your account.",
         user: {
           id: user.id,
           firstName: user.firstName,

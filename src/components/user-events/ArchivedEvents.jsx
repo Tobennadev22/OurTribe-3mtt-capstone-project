@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Archive, CalendarDays, Eye, MapPin } from "lucide-react";
+import { Archive, CalendarDays, Eye, MapPin, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -22,10 +22,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 export default function ArchivedEvents() {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [viewOpen, setViewOpen] = useState(false);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -100,6 +115,51 @@ export default function ArchivedEvents() {
     }
   }
 
+  async function handleDelete() {
+    if (!eventToDelete) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setError("");
+
+      const response = await fetch(
+        `/api/events/${eventToDelete.id}/archive`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      const text = await response.text();
+
+      let data;
+
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        throw new Error("Server returned an invalid response.");
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.message || "Failed to delete archived event");
+      }
+
+      setEvents((previous) =>
+        previous.filter((event) => event.id !== eventToDelete.id),
+      );
+
+      setDeleteOpen(false);
+      setEventToDelete(null);
+    } catch (error) {
+      console.error("DELETE ARCHIVED EVENT ERROR:", error);
+
+      setError(error.message || "Failed to delete archived event");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   function formatDate(date) {
     if (!date) return "—";
 
@@ -125,7 +185,11 @@ export default function ArchivedEvents() {
 
   return (
     <>
-      <div className="mb-6">{/* {error} */}</div>
+      {error && (
+        <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
 
       {events.length === 0 ? (
         <Card>
@@ -194,14 +258,27 @@ export default function ArchivedEvents() {
                   )}
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleView(event)}
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  View Event
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleView(event)}
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    View Event
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="text-red-600 hover:text-red-600"
+                    onClick={() => {
+                      setEventToDelete(event);
+                      setDeleteOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -267,6 +344,38 @@ export default function ArchivedEvents() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* DELETE CONFIRMATION */}
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove from archive?</AlertDialogTitle>
+
+            <AlertDialogDescription>
+              Are you sure you want to remove{" "}
+              <span className="font-medium text-foreground">
+                {eventToDelete?.title}
+              </span>{" "}
+              from your archived events? This won&apos;t delete the event
+              itself.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+
+            <AlertDialogAction
+              type="button"
+              disabled={deleting}
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

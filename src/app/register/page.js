@@ -91,14 +91,17 @@ export default function Register() {
       }
 
       // Registration successful
-      setSuccess("Registration successful! Your account has been created.");
+      setSuccess(
+        data.message ||
+          "Registration successful! Check your email to verify your account.",
+      );
 
       setLoading(false);
 
-      // Redirect to login after 2 seconds
+      // Redirect to login after a few seconds
       setTimeout(() => {
         router.push("/login");
-      }, 2000);
+      }, 4000);
     } catch (error) {
       console.error("Registration error:", error);
 
