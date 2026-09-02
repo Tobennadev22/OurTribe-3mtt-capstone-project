@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Lock, LockOpen, Search } from "lucide-react";
+import { Lock, LockOpen, Search, Trash2 } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import DashboardHeaders from "@/components/dashboardheaders";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -28,6 +39,10 @@ export default function UserManagement() {
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   const [updatingId, setUpdatingId] = useState(null);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   // ========================================
   // FETCH USERS
@@ -136,6 +151,52 @@ export default function UserManagement() {
       setError(error.message || "Failed to update user status");
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  // ========================================
+  // DELETE USER
+  // ========================================
+
+  async function handleDelete() {
+    if (!userToDelete) {
+      return;
+    }
+
+    try {
+      setDeletingId(userToDelete.id);
+      setError("");
+
+      const response = await fetch(`/api/admin/users/${userToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      const text = await response.text();
+
+      let data = {};
+
+      if (text) {
+        data = JSON.parse(text);
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete user");
+      }
+
+      setUsers((previousUsers) =>
+        previousUsers.filter(
+          (currentUser) => currentUser.id !== userToDelete.id,
+        ),
+      );
+
+      setDeleteOpen(false);
+      setUserToDelete(null);
+    } catch (error) {
+      console.error("DELETE USER ERROR:", error);
+
+      setError(error.message || "Failed to delete user");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -273,7 +334,7 @@ export default function UserManagement() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex justify-center">
+                      <div className="flex justify-center gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -291,6 +352,19 @@ export default function UserManagement() {
                             <Lock className="h-5 w-5 text-red-600" />
                           )}
                         </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={deletingId === user.id}
+                          onClick={() => {
+                            setUserToDelete(user);
+                            setDeleteOpen(true);
+                          }}
+                          title="Delete user"
+                        >
+                          <Trash2 className="h-5 w-5 text-red-600" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -300,6 +374,39 @@ export default function UserManagement() {
           </table>
         </div>
       </div>
+
+      {/* DELETE CONFIRMATION */}
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete user?</AlertDialogTitle>
+
+            <AlertDialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">
+                {userToDelete?.firstName} {userToDelete?.lastName}
+              </span>{" "}
+              ({userToDelete?.email})? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingId === userToDelete?.id}>
+              Cancel
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              type="button"
+              disabled={deletingId === userToDelete?.id}
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deletingId === userToDelete?.id ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

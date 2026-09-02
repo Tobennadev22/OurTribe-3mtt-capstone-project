@@ -50,6 +50,12 @@ export const authOptions = {
           );
         }
 
+        if (user.status === "SUSPENDED") {
+          throw new Error(
+            "Your account has been suspended. Please contact an administrator.",
+          );
+        }
+
         return {
           id: user.id,
           firstName: user.firstName,

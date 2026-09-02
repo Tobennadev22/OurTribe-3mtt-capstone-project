@@ -1,3 +1,6 @@
+import { getServerSession } from "next-auth";
+
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(request, { params }) {
@@ -98,6 +101,75 @@ export async function PATCH(request, { params }) {
       {
         status: 500,
       },
+    );
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return Response.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    if (session.user.role !== "ADMIN") {
+      return Response.json({ message: "Forbidden" }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    if (!id) {
+      return Response.json(
+        {
+          message: "User ID is required",
+        },
+        { status: 400 },
+      );
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      return Response.json(
+        {
+          message: "User not found",
+        },
+        { status: 404 },
+      );
+    }
+
+    // Never allow this endpoint to delete an admin
+    if (user.role !== "USER") {
+      return Response.json(
+        {
+          message: "Admin users cannot be deleted here",
+        },
+        { status: 403 },
+      );
+    }
+
+    await prisma.user.delete({
+      where: {
+        id,
+      },
+    });
+
+    return Response.json({
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    console.error("DELETE USER ERROR:", error);
+
+    return Response.json(
+      {
+        message: "Failed to delete user",
+      },
+      { status: 500 },
     );
   }
 }
